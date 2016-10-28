@@ -81,9 +81,9 @@ THULAC（THU Lexical Analyzer for Chinese）由清华大学自然语言处理与
 	model_path dir		String		设置模型文件所在文件夹，默认为models/
 	pre_alloc_size		int			设置返回结果的长度，超过设定长度会被自动截取。
 
-
 ###2.获取模型
-获取已经训练好的THULAC模型，请登录[thulac.thunlp.org](http://thulac.thunlp.org)网站填写个人信息进行下载。
+
+THULAC需要分词和词性标注模型的支持，获取下载好的模型用户可以登录[thulac.thunlp.org](http://thulac.thunlp.org)网站填写个人信息进行下载，并放到THULAC的根目录即可，或者使用参数`-model_dir dir`指定模型的位置。
 
 ###3.与C++版和python版性能对比
 
@@ -94,8 +94,6 @@ THULAC.so版本处理速度为535KB/s
 THULAC（C++）版处理速度为1220KB/s
 THULAC-python版处理速度为5KB/s
 ```
-
-
 
 ##代表分词软件的性能对比
 我们选择LTP、ICTCLAS、结巴分词等国内代表分词软件与THULAC做性能比较。我们选择Windows作为测试环境，根据第二届国际汉语分词测评发布的国际中文分词测评标准，对不同软件进行了速度和准确率测试。
