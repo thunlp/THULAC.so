@@ -3,7 +3,6 @@
 #include "cb_tagging_decoder.h"
 #include "postprocess.h"
 #include "timeword.h"
-#include "verbword.h"
 #include "negword.h"
 #include "punctuation.h"
 #include "filter.h"
@@ -161,7 +160,6 @@ int main (int argc,char **argv) {
 
     NegWord* negword = new NegWord((prefix+"neg.dat").c_str());
     TimeWord* timeword = new TimeWord();
-    VerbWord* verbword = new VerbWord((prefix+"vM.dat").c_str(), (prefix+"vD.dat").c_str());
 
     Filter* filter = NULL;
     if(useFilter){
@@ -199,7 +197,6 @@ int main (int argc,char **argv) {
                 punctuation->adjust(tagged);
                 timeword->adjustDouble(tagged);
                 negword->adjust(tagged);
-                verbword->adjust(tagged);
                 if(useFilter){
                     filter->adjust(tagged);
                 }
@@ -251,7 +248,6 @@ int main (int argc,char **argv) {
 
     delete negword;
     delete timeword;
-    delete verbword;
     delete punctuation;
     if(useFilter){
         delete filter;
