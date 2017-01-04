@@ -105,7 +105,7 @@ private:
 
 TaggingDecoder::TaggingDecoder(){
     this->separator='_';
-    this->max_length=10000;
+    this->max_length=50000;
     this->len=0;
     this->sequence=new int[this->max_length];
     this->allowed_label_lists=new int*[this->max_length];
