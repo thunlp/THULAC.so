@@ -352,5 +352,35 @@ inline void get_raw_vector(std::vector<Raw>& vec,char* s,int len,int min_char=33
     //if(!(c&0x80))sent.push_back(current_character);
     //return 0;
 }
+inline void cut_raw(Raw& sent, std::vector<Raw>& vec, int max_len){
+    vec.clear();
+    //std::vector<int> pun_vec;
+    Raw sent_tmp;
+    std::set<int> pun_set;
+    std::set<int>::iterator it;
+    //int punInts[] = {46,63,33,12290,65311,65281};
+    int punInts[] = {63,33,59,12290,65311,65281,65307};
+    for(int i = 0; i < 7; i ++){
+        pun_set.insert(punInts[i]);
+    }
+    int current_character=-1;
+    int c, num = 0, last_pun = 0;
+    sent_tmp.clear();
+    for(int i = 0; i < sent.size(); i++){//反复读取输入流
+        c = sent[i];
+        num++;
+        it = pun_set.find(c);
+        if(it != pun_set.end() || i == sent.size()-1) {
+            if(num > max_len) {
+                vec.push_back(sent_tmp);
+                sent_tmp.clear();
+                num = i - last_pun + 1;
+            }
+            for(int j = last_pun; j <= i; j++) sent_tmp.push_back(sent[j]);
+            last_pun = i+1;
+        }
+    }
+    if(sent_tmp.size()) vec.push_back(sent_tmp);
+}
 
 }//for thulac

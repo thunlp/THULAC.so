@@ -3,7 +3,6 @@
 #include "cb_tagging_decoder.h"
 #include "postprocess.h"
 #include "timeword.h"
-#include "verbword.h"
 #include "negword.h"
 #include "punctuation.h"
 #include "filter.h"
@@ -33,6 +32,7 @@ namespace {
 	bool useT2S = false;
 	bool seg_only = false;
 	bool useFilter = false;
+	int max_length = 50000;
 	TaggingDecoder* cws_decoder=NULL;
 	permm::Model* cws_model = NULL;
 	DAT* cws_dat = NULL;
@@ -55,7 +55,6 @@ namespace {
 
 	NegWord* negword = NULL;
 	TimeWord* timeword = NULL;
-	VerbWord* verbword = NULL;
 
 	Filter* filter = NULL;
 	char *result = NULL;
@@ -122,7 +121,6 @@ extern "C" int init(const char * model, const char* dict = NULL, int ret_size = 
 
 	negword = new NegWord((prefix+"neg.dat").c_str());
 	timeword = new TimeWord();
-	verbword = new VerbWord((prefix+"vM.dat").c_str(), (prefix+"vD.dat").c_str());
 
 	filter = NULL;
 	if(useFilter){
@@ -141,7 +139,6 @@ extern "C" void deinit() {
 
 	delete negword;
 	delete timeword;
-	delete verbword;
 	delete punctuation;
 	if(useFilter){
 		delete filter;
@@ -216,67 +213,68 @@ extern "C" int seg(const char *in) {
 	std::istringstream ins(str);
 	std::ostringstream ous;
 	std::string ori;
-
+	std::vector<thulac::RawSentence> vec;
 	while(std::getline(ins,ori)){
 		
-		if(ori.length()>9999){
-			ori = ori.substr(0,9999);
-		}
 		strcpy(s,ori.c_str());
 		size_t in_left=ori.length();
 		thulac::get_raw(oiraw, s, in_left);
 
-		if(useT2S) {
-            preprocesser->clean(oiraw,traw,poc_cands);
-            preprocesser->T2S(traw, raw);
+		if(oiraw.size() > max_length) {
+            thulac::cut_raw(oiraw, vec, max_length);    
         }
         else {
-            preprocesser -> clean(oiraw,raw,poc_cands);
+            vec.clear();
+            vec.push_back(oiraw);
         }
+        for(int vec_num = 0; vec_num < vec.size(); vec_num++) {
+            if(useT2S) {
+                preprocesser->clean(vec[vec_num],traw,poc_cands);
+                preprocesser->T2S(traw, raw);
+            }
+            else {
+                preprocesser -> clean(vec[vec_num],raw,poc_cands);
+            }
 
-		if(raw.size()){
+			if(raw.size()){
 	
-			if(seg_only){
-				cws_decoder->segment(raw, poc_cands, tagged);
-                cws_decoder->get_seg_result(segged);
-                ns_dict->adjust(segged);
-                idiom_dict->adjust(segged);
+				if(seg_only){
+					cws_decoder->segment(raw, poc_cands, tagged);
+	                cws_decoder->get_seg_result(segged);
+	                ns_dict->adjust(segged);
+	                idiom_dict->adjust(segged);
+	                punctuation->adjust(segged);
+	                timeword->adjust(segged);
+	                negword->adjust(segged);
+	                if(user_dict){
+	                    user_dict->adjust(segged);
+	                }
+	                if(useFilter){
+	                    filter->adjust(segged);
+	                }
 
-                if(user_dict){
-                    user_dict->adjust(segged);
-                }
+					for(int j = 0; j < segged.size(); j++){
+						if(j!=0) ous<<" ";
+						ous<<segged[j];
+					}
+				}else{
+					tagging_decoder->segment(raw,poc_cands,tagged);
+	            
+	            //后处理
+	                ns_dict->adjust(tagged);
+	                idiom_dict->adjust(tagged);
+	                punctuation->adjust(tagged);
+	                timeword->adjustDouble(tagged);
+	                negword->adjust(tagged);
+	                if(user_dict){
+	                    user_dict->adjust(tagged);
+	                }
+	                if(useFilter){
+	                    filter->adjust(tagged);
+	                }
 
-                punctuation->adjust(segged);
-                timeword->adjust(segged);
-                negword->adjust(segged);
-                if(useFilter){
-                    filter->adjust(segged);
-                }
-
-				for(int j = 0; j < segged.size(); j++){
-					if(j!=0) ous<<" ";
-					ous<<segged[j];
+					ous<<tagged;
 				}
-			}else{
-				tagging_decoder->segment(raw,poc_cands,tagged);
-            
-            //后处理
-                ns_dict->adjust(tagged);
-                idiom_dict->adjust(tagged);
-
-                if(user_dict){
-                    user_dict->adjust(tagged);
-                }
-
-                punctuation->adjust(tagged);
-                timeword->adjustDouble(tagged);
-                negword->adjust(tagged);
-                verbword->adjust(tagged);
-                if(useFilter){
-                    filter->adjust(tagged);
-                }
-
-				ous<<tagged;
 			}
 		}
 	}
