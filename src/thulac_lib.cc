@@ -204,9 +204,8 @@ extern "C" int seg(const char *in) {
     thulac::SegmentedSentence segged;
     thulac::TaggedSentence tagged;
 
-    const int BYTES_LEN=10000;
+    const int BYTES_LEN=1000000;
 	char* s=new char[ BYTES_LEN];
-	char* out=new char[BYTES_LEN];
 
 	clock_t start = clock();
 	std::string str(in);
@@ -282,7 +281,6 @@ extern "C" int seg(const char *in) {
 	clock_t end = clock();
 	double duration = (double)(end - start) / CLOCKS_PER_SEC;
 	delete [] s;
-	delete [] out;
 	std::string ostr = ous.str();
 	size_t len = ostr.length();
 	if (len > result_size) {
