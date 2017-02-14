@@ -204,8 +204,8 @@ extern "C" int seg(const char *in) {
     thulac::SegmentedSentence segged;
     thulac::TaggedSentence tagged;
 
-    const int BYTES_LEN=1000000;
-	char* s=new char[ BYTES_LEN];
+    const int BYTES_LEN=strlen(in);
+	char* s=new char[BYTES_LEN+100];
 
 	clock_t start = clock();
 	std::string str(in);
