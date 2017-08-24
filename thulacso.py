@@ -13,8 +13,8 @@ class ThulacSo():
     def __init__(self, model_path='', user_dict_path='', pre_alloc_size=1024*1024*16, t2s=False, just_seg=False):
         self.lib = None
         if self.lib == None:
-            #path = os.path.dirname(os.path.realpath(__file__)) #设置so文件的位置
-            path = '/usr/local/lib/python3.5/dist-packages/thulac-0.1.1.1-py3.5.egg/thulac'
+            path = os.path.dirname(os.path.realpath(__file__)) #设置so文件的位置
+            #path = '/usr/local/lib/python3.5/dist-packages/thulac-0.1.1.1-py3.5.egg/thulac'
             self.lib = cdll.LoadLibrary(path+'/libthulac.so') #读取so文件
             if len(model_path) == 0:
                 model_path = path+'/models' #获取models文件夹位置
